@@ -87,6 +87,12 @@ function New-BmhEntraSamlApplication {
                 IdentifierUris = "$Identifier"
             }
 
+            # Create hashtable to hold the sso method that will be applied  
+            $samlParams = @{PreferredSingleSignOnMode = "saml" }
+
+            # Update the service principal with the preferred sso method  
+            Update-MgServicePrincipal -ServicePrincipalId $servicePrincipalId -BodyParameter $samlParams
+
             # update prog params hashtable
             $progParams.Status = "Updating new application with redirect and Identifier"
 
@@ -94,12 +100,6 @@ function New-BmhEntraSamlApplication {
 
             # Update the application with the provided redirect and identifier URIs
             Update-MgApplication -ApplicationId $appId -BodyParameter $webParams
-
-            # Create hashtable to hold the sso method that will be applied  
-            $samlParams = @{PreferredSignleSignOnMode = "saml" }
-
-            # Update the service principal with the preferred sso method  
-            Update-MgServicePrincipal -ServicePrincipalId $servicePrincipalId -BodyParameter $samlParams
 
             # Generate a Entra token signing certificate for the new application.  
             Add-MgServicePrincipalTokenSigningCertificate -ServicePrincipalId $servicePrincipalId
