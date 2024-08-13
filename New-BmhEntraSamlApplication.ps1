@@ -72,11 +72,11 @@ function New-BmhEntraSamlApplication {
         # Check if the application was created successfully based on results of the Try/Catch Block. Only continue if there was a success.
         If ($Ok) {
             # Grab the service principal ID of the newly created enterprise app
-            $spn = Get-MgServicePrincipal -Filter "DisplayName eq $DisplayName"
+            $spn = Get-MgServicePrincipal -Filter "DisplayName eq '$DisplayName'"
             $servicePrincipalId = $spn.Id
 
             # Grab the application/client ID of the newly created enterprise app
-            $appReg = Get-MgApplication -Filter "DisplayName eq $DisplayName"
+            $appReg = Get-MgApplication -Filter "DisplayName eq '$DisplayName'"
             $appId = $appReg.Id
 
             # Create Hashtable to hold the redirect and identifier URIs that will be applied
