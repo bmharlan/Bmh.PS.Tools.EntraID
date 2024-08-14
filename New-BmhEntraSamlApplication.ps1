@@ -67,7 +67,7 @@ function New-BmhEntraSamlApplication {
             Write-Warning $Msg
         }
 
-        Start-Sleep -Seconds 1
+        Start-Sleep -Seconds 5
         Write-Verbose "[$((Get-Date).TimeOfDay.ToString()) Process ] Application $DisplayName successfully created. Updating application with redirect and Identifier"
 
         # Update progParams hashtable
@@ -91,6 +91,29 @@ function New-BmhEntraSamlApplication {
             $progParams.PercentComplete = 50
             Write-Progress @progParams
             Start-Sleep 1
+
+            #Validate that SPN and App IDs are not empty before moving forward. Run a While loop to try and get the IDs
+            #Initialize a counter for the while loop
+            $attempts = 0
+            while ($attempts -lt 4) {
+                if (-not [string]::IsNullOrEmpty($appId) -and -not [string]::IsNullOrEmpty($servicePrincipalId)) {
+                    # Exit the loop if both variables have a value
+                    Break
+                }
+                Write-Verbose "[$((Get-Date).TimeOfDay.ToString()) Process ] AppID and SpnID Variables are empty. Attemtping to refetch the IDs."
+                Start-Sleep 5
+
+                $appReg = Get-MgApplication -Filter "DisplayName eq '$DisplayName'"
+                $appId = $appReg.Id
+
+                $spn = Get-MgServicePrincipal -Filter "DisplayName eq '$DisplayName'"
+                $servicePrincipalId = $spn.Id
+
+                #increment the counter
+                $attempts++
+                
+            }
+
 
 
             # Create hashtable to hold the sso method that will be applied  
